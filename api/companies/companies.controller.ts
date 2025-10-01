@@ -18,13 +18,17 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { CompanyScopeGuard } from '../common/guards/company-scope.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/decorators/roles.decorator';
+import { CompanyServicesService } from '../company-services/company-services.service';
 
 @ApiTags('companies')
 @Controller('companies')
 @UseGuards(JwtAuthGuard, RolesGuard, CompanyScopeGuard)
 @ApiBearerAuth('JWT-auth')
 export class CompaniesController {
-  constructor(private readonly companiesService: CompaniesService) {}
+  constructor(
+    private readonly companiesService: CompaniesService,
+    private readonly companyServicesService: CompanyServicesService,
+  ) {}
 
   @Post()
   @Roles(Role.SUPER_ADMIN)
@@ -97,5 +101,21 @@ export class CompaniesController {
   @ApiParam({ name: 'id', description: 'Company ID' })
   async remove(@Param('id') id: string) {
     return this.companiesService.remove(id);
+  }
+
+  @Get(':id/services')
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
+  @ApiOperation({ summary: 'Get all services for a company' })
+  @ApiResponse({ status: 200, description: 'Company services retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiParam({ name: 'id', description: 'Company ID' })
+  async getCompanyServices(@Param('id') companyId: string, @Request() req) {
+    // Super admin can see services for any company
+    // Others can only see services for their own company
+    if (req.user.role !== Role.SUPER_ADMIN && req.user.companyId !== companyId) {
+      return null;
+    }
+
+    return this.companyServicesService.findServicesByCompany(companyId);
   }
 }

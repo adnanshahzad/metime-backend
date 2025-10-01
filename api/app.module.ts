@@ -5,6 +5,9 @@ import { LoggingModule } from './logging/logging.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
+import { ServiceCategoriesModule } from './service-categories/service-categories.module';
+import { ServicesModule } from './services/services.module';
+import { CompanyServicesModule } from './company-services/company-services.module';
 import { RootController } from './root/root.controller';
 
 @Module({
@@ -22,6 +25,9 @@ import { RootController } from './root/root.controller';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    ServiceCategoriesModule,
+    ServicesModule,
+    CompanyServicesModule,
   ],
   controllers: [RootController],
 })
