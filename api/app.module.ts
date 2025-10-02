@@ -8,6 +8,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { ServiceCategoriesModule } from './service-categories/service-categories.module';
 import { ServicesModule } from './services/services.module';
 import { CompanyServicesModule } from './company-services/company-services.module';
+import { BookingsModule } from './bookings/bookings.module';
 import { RootController } from './root/root.controller';
 
 @Module({
@@ -28,6 +29,7 @@ import { RootController } from './root/root.controller';
     ServiceCategoriesModule,
     ServicesModule,
     CompanyServicesModule,
+    BookingsModule,
   ],
   controllers: [RootController],
 })

@@ -5,7 +5,8 @@ import { Company, CompanySchema } from '../companies/company.schema';
 import { ServiceCategory, ServiceCategorySchema } from '../service-categories/service-category.schema';
 import { Service, ServiceSchema } from '../services/service.schema';
 import { CompanyService, CompanyServiceSchema } from '../company-services/company-service.schema';
-import { companies, superAdmin, getCompanyUsers, serviceCategories, services } from './data';
+import { Booking, BookingSchema } from '../bookings/booking.schema';
+import { companies, superAdmin, getCompanyUsers, serviceCategories, services, getSampleBookings } from './data';
 import { Role } from '../common/decorators/roles.decorator';
 
 async function seed() {
@@ -28,6 +29,7 @@ async function seed() {
     const ServiceCategoryModel = require('mongoose').model('ServiceCategory', ServiceCategorySchema);
     const ServiceModel = require('mongoose').model('Service', ServiceSchema);
     const CompanyServiceModel = require('mongoose').model('CompanyService', CompanyServiceSchema);
+    const BookingModel = require('mongoose').model('Booking', BookingSchema);
 
     if (command === 'refresh') {
       console.log('Dropping existing collections...');
@@ -36,6 +38,7 @@ async function seed() {
       await ServiceCategoryModel.collection.drop().catch(() => {});
       await ServiceModel.collection.drop().catch(() => {});
       await CompanyServiceModel.collection.drop().catch(() => {});
+      await BookingModel.collection.drop().catch(() => {});
       console.log('Collections dropped');
     }
 
@@ -109,7 +112,7 @@ async function seed() {
     const createdServices = [];
     
     // Get category IDs
-    const therapyCategory = createdCategories.find(c => c.slug === 'therapy');
+    const salonCategory = createdCategories.find(c => c.slug === 'salon');
     const spaCategory = createdCategories.find(c => c.slug === 'spa');
     
     for (const serviceData of services) {
@@ -117,13 +120,13 @@ async function seed() {
       let categoryId;
       const serviceName = serviceData.name.toLowerCase();
       
-      // Therapy services
+      // Salon services (previously therapy-oriented services)
       if (serviceName.includes('full body massage') || 
           serviceName.includes('deep tissue massage') || 
           serviceName.includes('back neck and shoulder therapy') || 
           serviceName.includes('couples massage') || 
           serviceName.includes('hot stone massage')) {
-        categoryId = therapyCategory?._id;
+        categoryId = salonCategory?._id;
       } 
       // Spa services
       else if (serviceName.includes('facial') || 
@@ -134,9 +137,9 @@ async function seed() {
                serviceName.includes('pedicure')) {
         categoryId = spaCategory?._id;
       } 
-      // Default to therapy if unclear
+      // Default to salon if unclear
       else {
-        categoryId = therapyCategory?._id;
+        categoryId = salonCategory?._id;
       }
 
       if (!categoryId) {
@@ -176,6 +179,51 @@ async function seed() {
         );
       }
       console.log(`  ✓ Attached ${createdServices.length} services to ${company.name}`);
+    }
+
+    // Create sample bookings
+    console.log('Creating sample bookings...');
+    const sampleBookings = getSampleBookings();
+    const customerUsers = await UserModel.find({ role: Role.USER }).limit(3);
+    const companyMembers = await UserModel.find({ role: Role.MEMBER }).limit(2);
+    
+    for (let i = 0; i < sampleBookings.length; i++) {
+      const bookingData = sampleBookings[i];
+      const customer = customerUsers[i % customerUsers.length];
+      const service = createdServices[i % createdServices.length];
+      
+      // Update service ID in booking data
+      bookingData.services[0].serviceId = service._id;
+      
+      // Add assignment data for some bookings
+      let assignedCompanyId = undefined;
+      let assignedUserId = undefined;
+      let assignedBy = undefined;
+      
+      if (bookingData.status === 'assigned_to_company' || bookingData.status === 'assigned_to_member') {
+        const company = createdCompanies[0]; // Assign to first company
+        assignedCompanyId = company._id;
+        assignedBy = adminUser._id;
+        
+        if (bookingData.status === 'assigned_to_member') {
+          const member = companyMembers[0];
+          assignedUserId = member._id;
+        }
+      }
+      
+      const booking = await BookingModel.create({
+        ...bookingData,
+        customerId: customer._id,
+        assignedCompanyId,
+        assignedUserId,
+        assignedBy,
+        services: bookingData.services.map(s => ({
+          serviceId: s.serviceId,
+          quantity: s.quantity,
+        })),
+      });
+      
+      console.log(`✓ Booking: ${booking._id} (${bookingData.status}) - Customer: ${customer.email}`);
     }
 
     console.log('\n🎉 Seeding completed successfully!');

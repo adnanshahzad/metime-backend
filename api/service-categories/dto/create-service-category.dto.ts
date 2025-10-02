@@ -5,7 +5,7 @@ import { ServiceCategoryType } from '../service-category.schema';
 export class CreateServiceCategoryDto {
   @ApiProperty({
     description: 'Service category name',
-    example: 'Massage Therapy',
+    example: 'Salon',
     minLength: 2,
   })
   @IsString()
@@ -15,14 +15,14 @@ export class CreateServiceCategoryDto {
   @ApiProperty({
     description: 'Service category type',
     enum: ServiceCategoryType,
-    example: ServiceCategoryType.THERAPY,
+    example: ServiceCategoryType.SALON,
   })
   @IsEnum(ServiceCategoryType)
   type: ServiceCategoryType;
 
   @ApiProperty({
     description: 'Service category slug (unique identifier)',
-    example: 'massage-therapy',
+    example: 'salon',
     minLength: 2,
   })
   @IsString()
@@ -40,7 +40,7 @@ export class CreateServiceCategoryDto {
 
   @ApiProperty({
     description: 'Service category description',
-    example: 'Various types of massage therapy services',
+    example: 'Salon and beauty services',
     required: false,
   })
   @IsOptional()

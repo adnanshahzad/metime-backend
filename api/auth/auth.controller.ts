@@ -51,7 +51,20 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiBearerAuth('JWT-auth')
   async getProfile(@Request() req) {
-    const user = await this.authService.getUserProfile(req.user.sub);
+    const user = await this.authService.getUserProfile(req.user.userId);
     return user;
+  }
+
+  @Get('debug')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Debug authentication (temporary)' })
+  @ApiResponse({ status: 200, description: 'Debug info' })
+  @ApiBearerAuth('JWT-auth')
+  async debug(@Request() req) {
+    return {
+      message: 'Authentication successful',
+      user: req.user,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

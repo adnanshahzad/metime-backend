@@ -5,7 +5,7 @@ import { ServiceCategoryType } from '../service-category.schema';
 export class UpdateServiceCategoryDto {
   @ApiProperty({
     description: 'Service category name',
-    example: 'Massage Therapy Updated',
+    example: 'Salon Updated',
     minLength: 2,
     required: false,
   })
@@ -17,7 +17,7 @@ export class UpdateServiceCategoryDto {
   @ApiProperty({
     description: 'Service category type',
     enum: ServiceCategoryType,
-    example: ServiceCategoryType.THERAPY,
+    example: ServiceCategoryType.SALON,
     required: false,
   })
   @IsOptional()
@@ -26,7 +26,7 @@ export class UpdateServiceCategoryDto {
 
   @ApiProperty({
     description: 'Service category slug (unique identifier)',
-    example: 'massage-therapy-updated',
+    example: 'salon-updated',
     minLength: 2,
     required: false,
   })

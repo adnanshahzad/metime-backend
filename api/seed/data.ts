@@ -1,5 +1,6 @@
 import { Role } from '../common/decorators/roles.decorator';
 import { ServiceCategoryType } from '../service-categories/service-category.schema';
+import { BookingStatus, PaymentStatus } from '../bookings/booking.schema';
 
 export const companies = [
   { name: 'metime', slug: 'metime' },
@@ -33,10 +34,10 @@ export const getCompanyUsers = (companySlug: string) => [
 
 export const serviceCategories = [
   {
-    name: 'Therapy',
-    type: ServiceCategoryType.THERAPY,
-    slug: 'therapy',
-    description: 'Professional therapeutic massage and treatment services',
+    name: 'Salon',
+    type: ServiceCategoryType.SALON,
+    slug: 'salon',
+    description: 'Professional salon and beauty services',
     isActive: true,
   },
   {
@@ -158,5 +159,116 @@ export const services = [
     images: ['https://example.com/manicure-pedicure-1.jpg'],
     notes: 'Includes hand and foot massage',
     isActive: true,
+  },
+];
+
+export const getSampleBookings = () => [
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 1,
+      },
+    ],
+    bookingDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    bookingTime: '10:00',
+    duration: 90,
+    totalPrice: 140.00,
+    status: BookingStatus.PENDING,
+    paymentStatus: PaymentStatus.PENDING,
+    customerNotes: 'Please use lavender essential oil',
+    assignedCompanyId: undefined,
+    assignedUserId: undefined,
+    assignedBy: undefined,
+  },
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 1,
+      },
+    ],
+    bookingDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+    bookingTime: '14:30',
+    duration: 60,
+    totalPrice: 120.00,
+    status: BookingStatus.ASSIGNED_TO_COMPANY,
+    paymentStatus: PaymentStatus.PAID,
+    customerNotes: 'First time customer, please be gentle',
+    assignedCompanyId: undefined, // Will be populated during seeding
+    assignedUserId: undefined,
+    assignedBy: undefined, // Will be populated during seeding
+  },
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 2,
+      },
+    ],
+    bookingDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // 21 days from now
+    bookingTime: '16:00',
+    duration: 120,
+    totalPrice: 200.00,
+    status: BookingStatus.ASSIGNED_TO_MEMBER,
+    paymentStatus: PaymentStatus.PAID,
+    customerNotes: 'Anniversary celebration',
+    assignedCompanyId: undefined, // Will be populated during seeding
+    assignedUserId: undefined, // Will be populated during seeding
+    assignedBy: undefined, // Will be populated during seeding
+  },
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 1,
+      },
+    ],
+    bookingDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+    bookingTime: '09:00',
+    duration: 60,
+    totalPrice: 95.00,
+    status: BookingStatus.CONFIRMED,
+    paymentStatus: PaymentStatus.PAID,
+    customerNotes: 'Regular customer, prefer room 2',
+    assignedCompanyId: undefined,
+    assignedUserId: undefined,
+    assignedBy: undefined,
+  },
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 1,
+      },
+    ],
+    bookingDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+    bookingTime: '11:00',
+    duration: 45,
+    totalPrice: 90.00,
+    status: BookingStatus.IN_PROGRESS,
+    paymentStatus: PaymentStatus.PAID,
+    customerNotes: 'Urgent appointment for back pain',
+    assignedCompanyId: undefined,
+    assignedUserId: undefined,
+    assignedBy: undefined,
+  },
+  {
+    services: [
+      {
+        serviceId: '', // Will be populated with actual service ID
+        quantity: 1,
+      },
+    ],
+    bookingDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    bookingTime: '15:00',
+    duration: 90,
+    totalPrice: 150.00,
+    status: BookingStatus.COMPLETED,
+    paymentStatus: PaymentStatus.PAID,
+    customerNotes: 'Excellent service, will book again',
+    assignedCompanyId: undefined,
+    assignedUserId: undefined,
+    assignedBy: undefined,
   },
 ];

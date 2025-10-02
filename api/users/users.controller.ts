@@ -59,7 +59,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
   async getProfile(@Request() req) {
-    return this.usersService.findById(req.user.sub);
+    return this.usersService.findById(req.user.userId);
   }
 
   @Get(':id')
