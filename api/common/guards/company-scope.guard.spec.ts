@@ -66,7 +66,7 @@ describe('CompanyScopeGuard', () => {
     const context = {
       switchToHttp: jest.fn().mockReturnValue({
         getRequest: jest.fn().mockReturnValue({
-          user: { role: Role.USER, companyId: 'company-1' },
+          user: { role: Role.CUSTOMER, companyId: 'company-1' },
           params: {},
           body: {},
         }),

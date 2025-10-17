@@ -17,13 +17,13 @@ describe('AuthService', () => {
     _id: 'user-id',
     email: 'test@example.com',
     passwordHash: '$2b$10$hashedpassword',
-    role: Role.USER,
+    role: Role.CUSTOMER,
     companyId: 'company-id',
     isActive: true,
     toObject: () => ({
       _id: 'user-id',
       email: 'test@example.com',
-      role: Role.USER,
+      role: Role.CUSTOMER,
       companyId: 'company-id',
     }),
   };
@@ -91,7 +91,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         _id: 'user-id',
         email: 'test@example.com',
-        role: Role.USER,
+        role: Role.CUSTOMER,
         companyId: 'company-id',
       });
     });

@@ -48,11 +48,21 @@ export class UsersController {
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
   @ApiQuery({ name: 'role', required: false, enum: Role, description: 'Filter by user role' })
-  async findAll(@Request() req, @Query('role') role?: Role) {
-    // Super admin can see all users
+  @ApiQuery({ name: 'companyId', required: false, description: 'Filter by company ID (Super Admin only)' })
+  async findAll(@Request() req, @Query('role') role?: Role, @Query('companyId') companyId?: string) {
+    // Super admin can see all users or filter by specific company
     // Others can only see users in their company
-    const companyId = req.user.role === Role.SUPER_ADMIN ? undefined : req.user.companyId;
-    return this.usersService.findAll(companyId, role);
+    let filterCompanyId: string | undefined;
+    
+    if (req.user.role === Role.SUPER_ADMIN) {
+      // Super admin can filter by any company or see all
+      filterCompanyId = companyId;
+    } else {
+      // Non-super admins are restricted to their own company
+      filterCompanyId = req.user.companyId;
+    }
+    
+    return this.usersService.findAll(filterCompanyId, role);
   }
 
   @Get('me')

@@ -184,7 +184,7 @@ async function seed() {
     // Create sample bookings
     console.log('Creating sample bookings...');
     const sampleBookings = getSampleBookings();
-    const customerUsers = await UserModel.find({ role: Role.USER }).limit(3);
+    const customerUsers = await UserModel.find({ role: Role.CUSTOMER }).limit(3);
     const companyMembers = await UserModel.find({ role: Role.MEMBER }).limit(2);
     
     for (let i = 0; i < sampleBookings.length; i++) {
@@ -231,7 +231,7 @@ async function seed() {
     console.log('Super Admin: admin@example.com / ChangeMe123!');
     console.log('Company Admins: manager+metime@example.com / ChangeMe123!');
     console.log('Members: member+metime@example.com / ChangeMe123!');
-    console.log('Users: user+metime@example.com / ChangeMe123!');
+    console.log('Customers: customer+metime@example.com / ChangeMe123!');
 
   } catch (error) {
     console.error('Seeding failed:', error);

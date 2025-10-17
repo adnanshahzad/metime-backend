@@ -26,9 +26,9 @@ export const getCompanyUsers = (companySlug: string) => [
     role: Role.MEMBER,
   },
   {
-    email: `user+${companySlug}@example.com`,
+    email: `customer+${companySlug}@example.com`,
     password: 'ChangeMe123!',
-    role: Role.USER,
+    role: Role.CUSTOMER,
   },
 ];
 
