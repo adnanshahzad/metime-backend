@@ -63,6 +63,8 @@ async function seed() {
     const adminUser = await UserModel.findOneAndUpdate(
       { email: superAdmin.email },
       {
+        firstname: superAdmin.firstname,
+        lastname: superAdmin.lastname,
         email: superAdmin.email,
         passwordHash,
         role: superAdmin.role,
@@ -70,7 +72,7 @@ async function seed() {
       },
       { upsert: true, new: true }
     );
-    console.log(`✓ Super Admin: ${adminUser.email}`);
+    console.log(`✓ Super Admin: ${adminUser.firstname} ${adminUser.lastname} (${adminUser.email})`);
 
     // Create company users
     for (const company of createdCompanies) {
@@ -82,6 +84,8 @@ async function seed() {
         const user = await UserModel.findOneAndUpdate(
           { email: userData.email },
           {
+            firstname: userData.firstname,
+            lastname: userData.lastname,
             email: userData.email,
             passwordHash,
             role: userData.role,
@@ -90,7 +94,7 @@ async function seed() {
           },
           { upsert: true, new: true }
         );
-        console.log(`  ✓ ${userData.role}: ${user.email}`);
+        console.log(`  ✓ ${userData.role}: ${user.firstname} ${user.lastname} (${user.email})`);
       }
     }
 

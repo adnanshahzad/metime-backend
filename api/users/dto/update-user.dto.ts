@@ -4,6 +4,24 @@ import { Role } from '../../common/decorators/roles.decorator';
 
 export class UpdateUserDto {
   @ApiProperty({
+    description: 'User first name',
+    example: 'John',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  firstname?: string;
+
+  @ApiProperty({
+    description: 'User last name',
+    example: 'Doe',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  lastname?: string;
+
+  @ApiProperty({
     description: 'User password',
     example: 'newpassword123',
     minLength: 8,

@@ -4,6 +4,20 @@ import { Role } from '../../common/decorators/roles.decorator';
 
 export class CreateUserDto {
   @ApiProperty({
+    description: 'User first name',
+    example: 'John',
+  })
+  @IsString()
+  firstname: string;
+
+  @ApiProperty({
+    description: 'User last name',
+    example: 'Doe',
+  })
+  @IsString()
+  lastname: string;
+
+  @ApiProperty({
     description: 'User email address',
     example: 'user@example.com',
     format: 'email',

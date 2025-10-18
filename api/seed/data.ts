@@ -9,6 +9,8 @@ export const companies = [
 ];
 
 export const superAdmin = {
+  firstname: 'Super',
+  lastname: 'Admin',
   email: 'admin@example.com',
   password: 'ChangeMe123!',
   role: Role.SUPER_ADMIN,
@@ -16,16 +18,22 @@ export const superAdmin = {
 
 export const getCompanyUsers = (companySlug: string) => [
   {
+    firstname: 'Manager',
+    lastname: 'User',
     email: `manager+${companySlug}@example.com`,
     password: 'ChangeMe123!',
     role: Role.COMPANY_ADMIN,
   },
   {
+    firstname: 'Member',
+    lastname: 'User',
     email: `member+${companySlug}@example.com`,
     password: 'ChangeMe123!',
     role: Role.MEMBER,
   },
   {
+    firstname: 'Customer',
+    lastname: 'User',
     email: `customer+${companySlug}@example.com`,
     password: 'ChangeMe123!',
     role: Role.CUSTOMER,
