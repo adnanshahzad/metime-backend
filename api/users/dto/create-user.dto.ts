@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsMongoId } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../common/decorators/roles.decorator';
 
@@ -48,6 +48,6 @@ export class CreateUserDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   companyId?: string;
 }

@@ -51,6 +51,26 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument | null> {
     const updateData: any = { ...updateUserDto };
+
+    // Remove undefined properties to avoid unsetting fields unintentionally
+    Object.keys(updateData).forEach((key) => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
+
+    // Normalize and validate email updates
+    if (updateUserDto.email) {
+      const normalizedEmail = updateUserDto.email.toLowerCase();
+
+      // Check for existing user with same email
+      const existing = await this.userModel.findOne({ email: normalizedEmail }).exec();
+      if (existing && existing._id.toString() !== id) {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      updateData.email = normalizedEmail;
+    }
     
     if (updateUserDto.password) {
       updateData.passwordHash = await bcrypt.hash(updateUserDto.password, 10);

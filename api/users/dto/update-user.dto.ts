@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength, IsEnum, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, MinLength, IsEnum, IsBoolean, IsEmail, IsMongoId } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../common/decorators/roles.decorator';
 
@@ -20,6 +20,16 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   lastname?: string;
+
+  @ApiProperty({
+    description: 'User email address',
+    example: 'user@example.com',
+    format: 'email',
+    required: false,
+  })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
   @ApiProperty({
     description: 'User password',
@@ -48,7 +58,7 @@ export class UpdateUserDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   companyId?: string;
 
   @ApiProperty({

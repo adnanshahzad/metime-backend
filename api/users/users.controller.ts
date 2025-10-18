@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -113,7 +114,25 @@ export class UsersController {
       return null;
     }
 
+    // Enforce company scope for company admins: they cannot change companyId and it must remain their own company
+    if (req.user.role === Role.COMPANY_ADMIN) {
+      updateUserDto.companyId = req.user.companyId;
+    }
+
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Put(':id')
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiOperation({ summary: 'Replace or update user by ID' })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiBody({ type: UpdateUserDto })
+  async replace(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Request() req) {
+    // Delegate to the same update logic to keep behavior consistent
+    return this.update(id, updateUserDto, req);
   }
 
   @Delete(':id')

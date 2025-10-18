@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Role } from '../common/decorators/roles.decorator';
 
 export type UserDocument = User & Document;
@@ -21,8 +21,9 @@ export class User {
   @Prop({ required: true, enum: Role })
   role: Role;
 
-  @Prop({ type: String, ref: 'Company' })
-  companyId?: string;
+  // Store as ObjectId and reference Company
+  @Prop({ type: Types.ObjectId, ref: 'Company' })
+  companyId?: Types.ObjectId;
 
   @Prop({ default: true })
   isActive: boolean;
