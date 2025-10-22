@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmailForAuth(email);
     if (user && await bcrypt.compare(password, user.passwordHash)) {
       const { passwordHash, ...result } = user.toObject();
       return result;
@@ -36,7 +36,7 @@ export class AuthService {
     const payload = {
       sub: user._id,
       role: user.role,
-      companyId: user.companyId,
+      companyId: user.companyId?.toString(),
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -56,7 +56,7 @@ export class AuthService {
         id: user._id,
         email: user.email,
         role: user.role,
-        companyId: user.companyId,
+        companyId: user.companyId?.toString(),
       },
     };
   }
@@ -96,7 +96,7 @@ export class AuthService {
         secret: this.configService.get<string>('REFRESH_SECRET'),
       });
 
-      const user = await this.usersService.findById(payload.sub);
+      const user = await this.usersService.findByIdForAuth(payload.sub);
       if (!user || !user.isActive) {
         throw new UnauthorizedException();
       }
@@ -104,7 +104,7 @@ export class AuthService {
       const newPayload = {
         sub: user._id,
         role: user.role,
-        companyId: user.companyId,
+        companyId: user.companyId?.toString(),
       };
 
       const accessToken = this.jwtService.sign(newPayload, {
@@ -118,7 +118,7 @@ export class AuthService {
           id: user._id,
           email: user.email,
           role: user.role,
-          companyId: user.companyId,
+          companyId: user.companyId?.toString(),
         },
       };
     } catch (error) {

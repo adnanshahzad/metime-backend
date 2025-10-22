@@ -185,6 +185,11 @@ export class BookingsService {
     const { page = 1, limit = 10, status, sortBy = 'createdAt', sortOrder = 'desc' } = query;
     const skip = (page - 1) * limit;
 
+    // Validate companyId
+    if (!companyId || !Types.ObjectId.isValid(companyId)) {
+      throw new BadRequestException('Invalid company ID');
+    }
+
     const filter: any = { assignedCompanyId: new Types.ObjectId(companyId) };
     if (status) filter.status = status;
 

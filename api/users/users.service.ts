@@ -45,8 +45,16 @@ export class UsersService {
     return this.userModel.findById(id).populate('companyId').exec();
   }
 
+  async findByIdForAuth(id: string): Promise<UserDocument | null> {
+    return this.userModel.findById(id).exec();
+  }
+
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email: email.toLowerCase() }).populate('companyId').exec();
+  }
+
+  async findByEmailForAuth(email: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({ email: email.toLowerCase() }).exec();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument | null> {

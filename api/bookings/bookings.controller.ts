@@ -61,18 +61,6 @@ export class BookingsController {
     return this.bookingsService.getMyBookings(req.user.userId, query);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get specific booking details' })
-  @ApiResponse({ status: 200, description: 'Booking retrieved successfully', type: BookingResponseDto })
-  @ApiResponse({ status: 404, description: 'Booking not found' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  async getBookingById(
-    @Param('id', ParseObjectIdPipe) id: string,
-    @Request() req,
-  ): Promise<BookingResponseDto> {
-    return this.bookingsService.getBookingById(id, req.user.userId, req.user.role);
-  }
-
   @Patch(':id/cancel')
   @ApiOperation({ summary: 'Cancel a booking' })
   @ApiResponse({ status: 200, description: 'Booking cancelled successfully', type: BookingResponseDto })
@@ -240,5 +228,18 @@ export class BookingsController {
     @Request() req,
   ): Promise<BookingResponseDto> {
     return this.bookingsService.updateBookingStatus(id, updateBookingStatusDto, req.user.userId, req.user.role);
+  }
+
+  // This route must be last to avoid conflicts with specific routes
+  @Get(':id')
+  @ApiOperation({ summary: 'Get specific booking details' })
+  @ApiResponse({ status: 200, description: 'Booking retrieved successfully', type: BookingResponseDto })
+  @ApiResponse({ status: 404, description: 'Booking not found' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async getBookingById(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Request() req,
+  ): Promise<BookingResponseDto> {
+    return this.bookingsService.getBookingById(id, req.user.userId, req.user.role);
   }
 }
