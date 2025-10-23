@@ -8,9 +8,8 @@ import {
   Delete,
   UseGuards,
   Request,
-  Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { ServiceCategoriesService } from './service-categories.service';
 import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
 import { UpdateServiceCategoryDto } from './dto/update-service-category.dto';
@@ -18,7 +17,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/decorators/roles.decorator';
-import { ServiceCategoryType } from './service-category.schema';
 
 @ApiTags('service-categories')
 @Controller('service-categories')
@@ -42,18 +40,16 @@ export class ServiceCategoriesController {
   @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
   @ApiOperation({ summary: 'Get all service categories' })
   @ApiResponse({ status: 200, description: 'Service categories retrieved successfully' })
-  @ApiQuery({ name: 'type', required: false, enum: ServiceCategoryType, description: 'Filter by service category type' })
-  async findAll(@Query('type') type?: ServiceCategoryType) {
-    return this.serviceCategoriesService.findAll(type);
+  async findAll() {
+    return this.serviceCategoriesService.findAll();
   }
 
   @Get('active')
   @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
   @ApiOperation({ summary: 'Get all active service categories' })
   @ApiResponse({ status: 200, description: 'Active service categories retrieved successfully' })
-  @ApiQuery({ name: 'type', required: false, enum: ServiceCategoryType, description: 'Filter by service category type' })
-  async findActive(@Query('type') type?: ServiceCategoryType) {
-    return this.serviceCategoriesService.findActiveCategories(type);
+  async findActive() {
+    return this.serviceCategoriesService.findActiveCategories();
   }
 
   @Get(':id')

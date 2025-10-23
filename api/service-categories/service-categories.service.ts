@@ -1,7 +1,7 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ServiceCategory, ServiceCategoryDocument, ServiceCategoryType } from './service-category.schema';
+import { ServiceCategory, ServiceCategoryDocument } from './service-category.schema';
 import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
 import { UpdateServiceCategoryDto } from './dto/update-service-category.dto';
 
@@ -19,14 +19,8 @@ export class ServiceCategoriesService {
     return serviceCategory.save();
   }
 
-  async findAll(type?: ServiceCategoryType): Promise<ServiceCategoryDocument[]> {
-    const filter: any = {};
-    
-    if (type) {
-      filter.type = type;
-    }
-
-    return this.serviceCategoryModel.find(filter).sort({ name: 1 }).exec();
+  async findAll(): Promise<ServiceCategoryDocument[]> {
+    return this.serviceCategoryModel.find({}).sort({ name: 1 }).exec();
   }
 
   async findById(id: string): Promise<ServiceCategoryDocument | null> {
@@ -55,13 +49,8 @@ export class ServiceCategoriesService {
     return this.serviceCategoryModel.findByIdAndDelete(id).exec();
   }
 
-  async findActiveCategories(type?: ServiceCategoryType): Promise<ServiceCategoryDocument[]> {
+  async findActiveCategories(): Promise<ServiceCategoryDocument[]> {
     const filter: any = { isActive: true };
-    
-    if (type) {
-      filter.type = type;
-    }
-
     return this.serviceCategoryModel.find(filter).sort({ name: 1 }).exec();
   }
 

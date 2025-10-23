@@ -1,20 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export enum ServiceCategoryType {
-  SALON = 'SALON',
-  SPA = 'SPA',
-}
-
 export type ServiceCategoryDocument = ServiceCategory & Document;
 
 @Schema({ timestamps: true })
 export class ServiceCategory {
   @Prop({ required: true })
   name: string;
-
-  @Prop({ required: true, enum: ServiceCategoryType })
-  type: ServiceCategoryType;
 
   @Prop({ required: true, unique: true })
   slug: string;
@@ -30,5 +22,4 @@ export const ServiceCategorySchema = SchemaFactory.createForClass(ServiceCategor
 
 // Indexes
 ServiceCategorySchema.index({ slug: 1 });
-ServiceCategorySchema.index({ type: 1 });
 ServiceCategorySchema.index({ isActive: 1 });

@@ -1,6 +1,5 @@
-import { IsString, MinLength, IsEnum, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ServiceCategoryType } from '../service-category.schema';
 
 export class CreateServiceCategoryDto {
   @ApiProperty({
@@ -11,14 +10,6 @@ export class CreateServiceCategoryDto {
   @IsString()
   @MinLength(2)
   name: string;
-
-  @ApiProperty({
-    description: 'Service category type',
-    enum: ServiceCategoryType,
-    example: ServiceCategoryType.SALON,
-  })
-  @IsEnum(ServiceCategoryType)
-  type: ServiceCategoryType;
 
   @ApiProperty({
     description: 'Service category slug (unique identifier)',

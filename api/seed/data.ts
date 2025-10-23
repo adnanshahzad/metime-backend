@@ -1,5 +1,4 @@
 import { Role } from '../common/decorators/roles.decorator';
-import { ServiceCategoryType } from '../service-categories/service-category.schema';
 import { BookingStatus, PaymentStatus } from '../bookings/booking.schema';
 
 export const companies = [
@@ -12,7 +11,7 @@ export const superAdmin = {
   firstname: 'Super',
   lastname: 'Admin',
   email: 'admin@example.com',
-  password: 'ChangeMe123!',
+  password: '12345678',
   role: Role.SUPER_ADMIN,
 };
 
@@ -21,21 +20,21 @@ export const getCompanyUsers = (companySlug: string) => [
     firstname: 'Manager',
     lastname: 'User',
     email: `manager+${companySlug}@example.com`,
-    password: 'ChangeMe123!',
+    password: '12345678',
     role: Role.COMPANY_ADMIN,
   },
   {
     firstname: 'Member',
     lastname: 'User',
     email: `member+${companySlug}@example.com`,
-    password: 'ChangeMe123!',
+    password: '12345678',
     role: Role.MEMBER,
   },
   {
     firstname: 'Customer',
     lastname: 'User',
     email: `customer+${companySlug}@example.com`,
-    password: 'ChangeMe123!',
+    password: '12345678',
     role: Role.CUSTOMER,
   },
 ];
@@ -43,14 +42,12 @@ export const getCompanyUsers = (companySlug: string) => [
 export const serviceCategories = [
   {
     name: 'Salon',
-    type: ServiceCategoryType.SALON,
     slug: 'salon',
     description: 'Professional salon and beauty services',
     isActive: true,
   },
   {
     name: 'Spa',
-    type: ServiceCategoryType.SPA,
     slug: 'spa',
     description: 'Relaxing spa treatments and wellness services',
     isActive: true,

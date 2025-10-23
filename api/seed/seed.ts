@@ -232,10 +232,10 @@ async function seed() {
 
     console.log('\n🎉 Seeding completed successfully!');
     console.log('\nTest accounts:');
-    console.log('Super Admin: admin@example.com / ChangeMe123!');
-    console.log('Company Admins: manager+metime@example.com / ChangeMe123!');
-    console.log('Members: member+metime@example.com / ChangeMe123!');
-    console.log('Customers: customer+metime@example.com / ChangeMe123!');
+    console.log('Super Admin: admin@example.com / 12345678');
+    console.log('Company Admins: manager+metime@example.com / 12345678');
+    console.log('Members: member+metime@example.com / 12345678');
+    console.log('Customers: customer+metime@example.com / 12345678');
 
   } catch (error) {
     console.error('Seeding failed:', error);
