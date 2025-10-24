@@ -88,17 +88,29 @@ export class BookingsController {
 
   @Patch(':id/assign')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
-  @ApiOperation({ summary: 'Assign booking to company and/or specific member (Super Admin only)' })
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiOperation({ summary: 'Assign booking to company and/or specific member (Super Admin or Company Admin)' })
   @ApiResponse({ status: 200, description: 'Booking assigned successfully', type: BookingResponseDto })
   @ApiResponse({ status: 404, description: 'Booking, company, or user not found' })
   @ApiResponse({ status: 400, description: 'Invalid assignment data' })
-  @ApiResponse({ status: 403, description: 'Access denied - Super Admin only' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   async assignBooking(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() assignBookingDto: AssignBookingDto,
     @Request() req,
   ): Promise<BookingResponseDto> {
+    // If the caller is a company admin, enforce that assignments stay within their company
+    if (req.user?.role === Role.COMPANY_ADMIN) {
+      const forcedCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      const dto: AssignBookingDto = {
+        companyId: forcedCompanyId,
+        userId: assignBookingDto.userId,
+        adminNotes: assignBookingDto.adminNotes,
+      };
+      return this.bookingsService.assignBooking(id, dto, req.user.userId);
+    }
+
+    // Super admin path (unchanged)
     return this.bookingsService.assignBooking(id, assignBookingDto, req.user.userId);
   }
 
