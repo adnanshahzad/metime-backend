@@ -404,7 +404,7 @@ export class BookingsService {
 
   async getCompanyMembers(companyId: string): Promise<CompanyMemberDto[]> {
     const members = await this.userModel
-      .find({ companyId: new Types.ObjectId(companyId), isActive: true })
+      .find({ companyId: new Types.ObjectId(companyId), isActive: true, role: Role.MEMBER })
       .populate('companyId', 'name')
       .exec();
 
@@ -478,29 +478,36 @@ export class BookingsService {
   }
 
   private async checkSchedulingConflicts(bookingDate: string, bookingTime: string, duration: number): Promise<void> {
-    const startTime = new Date(`${bookingDate}T${bookingTime}:00.000Z`);
-    const endTime = new Date(startTime.getTime() + duration * 60000);
+    // Normalize the day to UTC boundaries to reliably query all bookings on the same date
+    const day = new Date(bookingDate);
+    const startOfDay = new Date(day);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(day);
+    endOfDay.setUTCHours(23, 59, 59, 999);
 
-    const conflicts = await this.bookingModel.find({
-      bookingDate: new Date(bookingDate),
-      status: { $nin: [BookingStatus.CANCELLED, BookingStatus.COMPLETED] },
-      $or: [
-        {
-          bookingTime: { $gte: this.formatTime(startTime), $lt: this.formatTime(endTime) }
-        },
-        {
-          $expr: {
-            $and: [
-              { $gte: [this.formatTime(endTime), "$bookingTime"] },
-              { $lt: [this.formatTime(startTime), { $add: ["$bookingTime", { $multiply: ["$duration", 60000] }] }] }
-            ]
-          }
-        }
-      ]
-    }).exec();
+    // Fetch all active bookings for this day (exclude completed/cancelled)
+    const sameDayBookings = await this.bookingModel
+      .find({
+        bookingDate: { $gte: startOfDay, $lte: endOfDay },
+        status: { $nin: [BookingStatus.CANCELLED, BookingStatus.COMPLETED] },
+      })
+      .exec();
 
-    if (conflicts.length > 0) {
-      throw new BadRequestException('Time slot conflicts with existing booking');
+    const toMinutes = (time: string): number => {
+      const [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const newStart = toMinutes(bookingTime);
+    const newEnd = newStart + duration; // duration already in minutes
+
+    for (const b of sameDayBookings) {
+      const existingStart = toMinutes(b.bookingTime);
+      const existingEnd = existingStart + (b.duration || 0);
+      const overlaps = newStart < existingEnd && existingStart < newEnd;
+      if (overlaps) {
+        throw new BadRequestException('Time slot conflicts with existing booking');
+      }
     }
   }
 
