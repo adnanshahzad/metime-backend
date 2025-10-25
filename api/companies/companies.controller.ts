@@ -41,54 +41,34 @@ export class CompaniesController {
   }
 
   @Get()
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all companies' })
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Get all companies (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Companies retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin role required' })
   async findAll() {
     return this.companiesService.findAll();
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get company by ID' })
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Get company by ID (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Company retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Company not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin role required' })
   @ApiParam({ name: 'id', description: 'Company ID' })
-  async findOne(@Param('id') id: string, @Request() req) {
-    const company = await this.companiesService.findById(id);
-    if (!company) {
-      return null;
-    }
-
-    // Super admin can see any company
-    // Others can only see their own company
-    if (req.user.role !== Role.SUPER_ADMIN && company._id.toString() !== req.user.companyId) {
-      return null;
-    }
-
-    return company;
+  async findOne(@Param('id') id: string) {
+    return this.companiesService.findById(id);
   }
 
   @Patch(':id')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
-  @ApiOperation({ summary: 'Update company by ID' })
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Update company by ID (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Company updated successfully' })
   @ApiResponse({ status: 404, description: 'Company not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin role required' })
   @ApiParam({ name: 'id', description: 'Company ID' })
   @ApiBody({ type: UpdateCompanyDto })
-  async update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto, @Request() req) {
-    const company = await this.companiesService.findById(id);
-    if (!company) {
-      return null;
-    }
-
-    // Super admin can update any company
-    // Company admin can only update their own company
-    if (req.user.role === Role.COMPANY_ADMIN && company._id.toString() !== req.user.companyId) {
-      return null;
-    }
-
+  async update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
     return this.companiesService.update(id, updateCompanyDto);
   }
 
@@ -104,18 +84,12 @@ export class CompaniesController {
   }
 
   @Get(':id/services')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
-  @ApiOperation({ summary: 'Get all services for a company' })
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Get all services for a company (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Company services retrieved successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin role required' })
   @ApiParam({ name: 'id', description: 'Company ID' })
-  async getCompanyServices(@Param('id') companyId: string, @Request() req) {
-    // Super admin can see services for any company
-    // Others can only see services for their own company
-    if (req.user.role !== Role.SUPER_ADMIN && req.user.companyId !== companyId) {
-      return null;
-    }
-
+  async getCompanyServices(@Param('id') companyId: string) {
     return this.companyServicesService.findServicesByCompany(companyId);
   }
 }
