@@ -37,7 +37,7 @@ export class ServicesController {
   }
 
   @Get()
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER, Role.CUSTOMER)
   @ApiOperation({ summary: 'Get all services' })
   @ApiResponse({ status: 200, description: 'Services retrieved successfully' })
   @ApiQuery({ name: 'categoryId', required: false, description: 'Filter by service category ID' })
@@ -74,7 +74,7 @@ export class ServicesController {
   }
 
   @Get('active')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER, Role.CUSTOMER)
   @ApiOperation({ summary: 'Get all active services' })
   @ApiResponse({ status: 200, description: 'Active services retrieved successfully' })
   @ApiQuery({ name: 'categoryId', required: false, description: 'Filter by service category ID' })
@@ -83,7 +83,7 @@ export class ServicesController {
   }
 
   @Get('category/:categoryId')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER, Role.CUSTOMER)
   @ApiOperation({ summary: 'Get services by category ID' })
   @ApiResponse({ status: 200, description: 'Services retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Category not found' })
@@ -93,7 +93,7 @@ export class ServicesController {
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN, Role.MEMBER, Role.CUSTOMER)
   @ApiOperation({ summary: 'Get service by ID' })
   @ApiResponse({ status: 200, description: 'Service retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Service not found' })
