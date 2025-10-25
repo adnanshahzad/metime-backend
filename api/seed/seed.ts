@@ -81,17 +81,21 @@ async function seed() {
       
       for (const userData of companyUsers) {
         const passwordHash = await bcrypt.hash(userData.password, 10);
+        const userPayload: any = {
+          firstname: userData.firstname,
+          lastname: userData.lastname,
+          email: userData.email,
+          passwordHash,
+          role: userData.role,
+          isActive: true,
+        };
+        // Only attach company to non-customer roles
+        if (userData.role !== Role.CUSTOMER) {
+          userPayload.companyId = company._id;
+        }
         const user = await UserModel.findOneAndUpdate(
           { email: userData.email },
-          {
-            firstname: userData.firstname,
-            lastname: userData.lastname,
-            email: userData.email,
-            passwordHash,
-            role: userData.role,
-            companyId: company._id,
-            isActive: true,
-          },
+          userPayload,
           { upsert: true, new: true }
         );
         console.log(`  ✓ ${userData.role}: ${user.firstname} ${user.lastname} (${user.email})`);

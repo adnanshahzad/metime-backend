@@ -33,7 +33,14 @@ export const getCompanyUsers = (companySlug: string) => [
   {
     firstname: 'Customer',
     lastname: 'User',
-    email: `customer+${companySlug}@example.com`,
+    email: 'customer@example.com',
+    password: '12345678',
+    role: Role.CUSTOMER,
+  },
+  {
+    firstname: 'Customer2',
+    lastname: 'User',
+    email: 'customer2@example.com',
     password: '12345678',
     role: Role.CUSTOMER,
   },
