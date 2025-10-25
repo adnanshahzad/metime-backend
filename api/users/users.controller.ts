@@ -86,12 +86,22 @@ export class UsersController {
     }
 
     // Super admin can see any user
-    // Others can only see users in their company
-    if (req.user.role !== Role.SUPER_ADMIN && user.companyId?.toString() !== req.user.companyId) {
-      return null;
+    if (req.user.role === Role.SUPER_ADMIN) {
+      return user;
     }
 
-    return user;
+    // Members can only view their own profile
+    if (req.user.role === Role.MEMBER) {
+      return id === req.user.userId ? user : null;
+    }
+
+    // Company admin can only see users in their company
+    if (req.user.role === Role.COMPANY_ADMIN) {
+      return user.companyId?.toString() === req.user.companyId ? user : null;
+    }
+
+    // Default deny
+    return null;
   }
 
   @Patch(':id')
