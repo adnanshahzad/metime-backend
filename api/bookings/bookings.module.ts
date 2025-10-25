@@ -17,6 +17,9 @@ import { CompanyService, CompanyServiceSchema } from '../company-services/compan
       { name: Service.name, schema: ServiceSchema },
       { name: CompanyService.name, schema: CompanyServiceSchema },
     ]),
+    // Needed so BookingsController can check caller company slug
+    // to grant cross-company assignment for Metime admins
+    (require('../companies/companies.module') as typeof import('../companies/companies.module')).CompaniesModule,
   ],
   controllers: [BookingsController],
   providers: [BookingsService],

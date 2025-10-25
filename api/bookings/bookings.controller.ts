@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
@@ -23,13 +24,17 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/decorators/roles.decorator';
+import { CompaniesService } from '../companies/companies.service';
 
 @ApiTags('Bookings')
 @ApiBearerAuth('JWT-auth')
 @Controller('v1/bookings')
 @UseGuards(JwtAuthGuard)
 export class BookingsController {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(
+    private readonly bookingsService: BookingsService,
+    private readonly companiesService: CompaniesService,
+  ) {}
 
   @Get('debug')
   @ApiOperation({ summary: 'Debug authentication (temporary)' })
@@ -78,18 +83,33 @@ export class BookingsController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
-  @ApiOperation({ summary: 'List all bookings with filtering and pagination (Super Admin only)' })
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiOperation({ summary: 'List all bookings with filtering and pagination (Super Admin; Metime Company Admins allowed)' })
   @ApiResponse({ status: 200, description: 'Bookings retrieved successfully' })
-  @ApiResponse({ status: 403, description: 'Access denied - Super Admin only' })
-  async getAllBookings(@Query() query: BookingListQueryDto) {
-    return this.bookingsService.getAllBookings(query);
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async getAllBookings(@Query() query: BookingListQueryDto, @Request() req) {
+    if (req.user?.role === Role.SUPER_ADMIN) {
+      return this.bookingsService.getAllBookings(query);
+    }
+    if (req.user?.role === Role.COMPANY_ADMIN) {
+      const metimeSlug = process.env.METIME_COMPANY_SLUG || 'metime';
+      const callerCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      if (callerCompanyId) {
+        try {
+          const company = await this.companiesService.findById(callerCompanyId);
+          if (company && company.slug === metimeSlug) {
+            return this.bookingsService.getAllBookings(query);
+          }
+        } catch (_) {}
+      }
+    }
+    throw new ForbiddenException('Access denied');
   }
 
   @Patch(':id/assign')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
-  @ApiOperation({ summary: 'Assign booking to company and/or specific member (Super Admin or Company Admin)' })
+  @ApiOperation({ summary: 'Assign booking to company and/or specific member (Super Admin; Company Admins limited to their company unless belonging to Metime)' })
   @ApiResponse({ status: 200, description: 'Booking assigned successfully', type: BookingResponseDto })
   @ApiResponse({ status: 404, description: 'Booking, company, or user not found' })
   @ApiResponse({ status: 400, description: 'Invalid assignment data' })
@@ -99,11 +119,25 @@ export class BookingsController {
     @Body() assignBookingDto: AssignBookingDto,
     @Request() req,
   ): Promise<BookingResponseDto> {
-    // If the caller is a company admin, enforce that assignments stay within their company
+    // Company Admins: normally restricted to their own company, except if they belong to Metime
     if (req.user?.role === Role.COMPANY_ADMIN) {
-      const forcedCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      const metimeSlug = process.env.METIME_COMPANY_SLUG || 'metime';
+      const callerCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      if (callerCompanyId) {
+        try {
+          const company = await this.companiesService.findById(callerCompanyId);
+          if (company && company.slug === metimeSlug) {
+            // Metime company admins can assign to any company/member; pass through as-is
+            return this.bookingsService.assignBooking(id, assignBookingDto, req.user.userId);
+          }
+        } catch (_) {
+          // If lookup fails, fall back to restrictive behavior below
+        }
+      }
+
+      // Restrictive behavior: force companyId to caller's company
       const dto: AssignBookingDto = {
-        companyId: forcedCompanyId,
+        companyId: callerCompanyId,
         userId: assignBookingDto.userId,
         adminNotes: assignBookingDto.adminNotes,
       };
@@ -152,12 +186,37 @@ export class BookingsController {
 
   @Get('users/by-company/:companyId')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
-  @ApiOperation({ summary: 'Get all members of a specific company (Super Admin only)' })
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiOperation({ summary: 'Get all members of a specific company (Super Admin; Metime Company Admins allowed)' })
   @ApiResponse({ status: 200, description: 'Company members retrieved successfully', type: [CompanyMemberDto] })
-  @ApiResponse({ status: 403, description: 'Access denied - Super Admin only' })
-  async getUsersByCompany(@Param('companyId', ParseObjectIdPipe) companyId: string): Promise<CompanyMemberDto[]> {
-    return this.bookingsService.getUsersByCompany(companyId);
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async getUsersByCompany(
+    @Param('companyId', ParseObjectIdPipe) companyId: string,
+    @Request() req,
+  ): Promise<CompanyMemberDto[]> {
+    // Allow Super Admins unconditionally
+    if (req.user?.role === Role.SUPER_ADMIN) {
+      return this.bookingsService.getUsersByCompany(companyId);
+    }
+
+    // For Company Admins: only allow if the caller belongs to the Metime company
+    if (req.user?.role === Role.COMPANY_ADMIN) {
+      const metimeSlug = process.env.METIME_COMPANY_SLUG || 'metime';
+      const callerCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      if (callerCompanyId) {
+        try {
+          const company = await this.companiesService.findById(callerCompanyId);
+          if (company && company.slug === metimeSlug) {
+            return this.bookingsService.getUsersByCompany(companyId);
+          }
+        } catch (_) {
+          // fall through to forbidden
+        }
+      }
+      throw new ForbiddenException('Access denied');
+    }
+
+    throw new ForbiddenException('Access denied');
   }
 
   // Company Admin Endpoints
@@ -169,6 +228,20 @@ export class BookingsController {
   @ApiResponse({ status: 200, description: 'Company assigned bookings retrieved successfully' })
   @ApiResponse({ status: 403, description: 'Access denied - Company Admin only' })
   async getCompanyAssignedBookings(@Query() query: BookingListQueryDto, @Request() req) {
+    // If caller is a Metime company admin, return all bookings (not just company-assigned)
+    const metimeSlug = process.env.METIME_COMPANY_SLUG || 'metime';
+    const callerCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+    if (callerCompanyId) {
+      try {
+        const company = await this.companiesService.findById(callerCompanyId);
+        if (company && company.slug === metimeSlug) {
+          return this.bookingsService.getAllBookings(query);
+        }
+      } catch (_) {
+        // fall through to default company-scoped behavior
+      }
+    }
+    // Default behavior: restrict to caller's company
     return this.bookingsService.getCompanyAssignedBookings(req.user.companyId, query);
   }
 
