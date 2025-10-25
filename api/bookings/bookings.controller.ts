@@ -25,6 +25,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/decorators/roles.decorator';
 import { CompaniesService } from '../companies/companies.service';
+import { BookingStatus } from './booking.schema';
 
 @ApiTags('Bookings')
 @ApiBearerAuth('JWT-auth')
@@ -50,6 +51,7 @@ export class BookingsController {
   // Customer Endpoints (accessible by all authenticated users)
 
   @Post()
+  @ApiTags('Requests')
   @ApiOperation({ summary: 'Create a new booking' })
   @ApiResponse({ status: 201, description: 'Booking created successfully', type: BookingResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid booking data' })
@@ -99,6 +101,33 @@ export class BookingsController {
           const company = await this.companiesService.findById(callerCompanyId);
           if (company && company.slug === metimeSlug) {
             return this.bookingsService.getAllBookings(query);
+          }
+        } catch (_) {}
+      }
+    }
+    throw new ForbiddenException('Access denied');
+  }
+
+  @Get('requests')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiTags('Requests')
+  @ApiOperation({ summary: 'List new booking requests (pending status) with filtering and pagination' })
+  @ApiResponse({ status: 200, description: 'Requests retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async getNewBookingRequests(@Query() query: BookingListQueryDto, @Request() req) {
+    const pendingQuery: BookingListQueryDto = { ...query, status: BookingStatus.PENDING };
+    if (req.user?.role === Role.SUPER_ADMIN) {
+      return this.bookingsService.getAllBookings(pendingQuery);
+    }
+    if (req.user?.role === Role.COMPANY_ADMIN) {
+      const metimeSlug = process.env.METIME_COMPANY_SLUG || 'metime';
+      const callerCompanyId = req.user?.companyId?.toString?.() ?? req.user?.companyId;
+      if (callerCompanyId) {
+        try {
+          const company = await this.companiesService.findById(callerCompanyId);
+          if (company && company.slug === metimeSlug) {
+            return this.bookingsService.getAllBookings(pendingQuery);
           }
         } catch (_) {}
       }
