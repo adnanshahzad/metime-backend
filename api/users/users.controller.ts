@@ -54,6 +54,7 @@ export class UsersController {
     // Super admin can see all users or filter by specific company
     // Others can only see users in their company
     let filterCompanyId: string | undefined;
+    let filterRole: Role | undefined = role;
     
     if (req.user.role === Role.SUPER_ADMIN) {
       // Super admin can filter by any company or see all
@@ -61,9 +62,14 @@ export class UsersController {
     } else {
       // Non-super admins are restricted to their own company
       filterCompanyId = req.user.companyId;
+      
+      // Company admin should only see members by default (unless explicitly filtering by role)
+      if (req.user.role === Role.COMPANY_ADMIN && !role) {
+        filterRole = Role.MEMBER;
+      }
     }
     
-    return this.usersService.findAll(filterCompanyId, role);
+    return this.usersService.findAll(filterCompanyId, filterRole);
   }
 
   @Get('me')
