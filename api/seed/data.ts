@@ -68,7 +68,7 @@ export const services = [
     description: 'A comprehensive therapeutic massage covering the entire body to relieve tension and promote relaxation',
     duration: 90,
     price: 140.00,
-    images: ['https://example.com/full-body-1.jpg', 'https://example.com/full-body-2.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Complete body treatment for overall wellness',
     isActive: true,
   },
@@ -77,7 +77,7 @@ export const services = [
     description: 'A therapeutic massage technique that focuses on realigning deeper layers of muscles and connective tissue',
     duration: 60,
     price: 120.00,
-    images: ['https://example.com/deep-tissue-1.jpg', 'https://example.com/deep-tissue-2.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Recommended for chronic pain and muscle tension',
     isActive: true,
   },
@@ -86,7 +86,7 @@ export const services = [
     description: 'Targeted therapeutic treatment focusing on the upper body to relieve tension and improve mobility',
     duration: 45,
     price: 90.00,
-    images: ['https://example.com/back-neck-shoulder-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Perfect for office workers and those with upper body tension',
     isActive: true,
   },
@@ -95,7 +95,7 @@ export const services = [
     description: 'Side-by-side therapeutic massage experience for couples in a relaxing environment',
     duration: 60,
     price: 200.00,
-    images: ['https://example.com/couples-1.jpg', 'https://example.com/couples-2.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Shared experience for two people in the same room',
     isActive: true,
   },
@@ -104,7 +104,7 @@ export const services = [
     description: 'A therapeutic massage that uses heated stones to relax muscles and improve circulation',
     duration: 90,
     price: 150.00,
-    images: ['https://example.com/hot-stone-1.jpg', 'https://example.com/hot-stone-2.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Great for deep muscle relaxation and stress relief',
     isActive: true,
   },
@@ -114,7 +114,7 @@ export const services = [
     description: 'A comprehensive facial treatment that cleanses, exfoliates, and nourishes the skin',
     duration: 60,
     price: 95.00,
-    images: ['https://example.com/signature-facial-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Customized treatment for all skin types',
     isActive: true,
   },
@@ -123,7 +123,7 @@ export const services = [
     description: 'Intensive facial treatment designed to deeply cleanse and purify the skin',
     duration: 75,
     price: 110.00,
-    images: ['https://example.com/deep-cleansing-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Ideal for acne-prone and oily skin',
     isActive: true,
   },
@@ -132,7 +132,7 @@ export const services = [
     description: 'Advanced facial treatment targeting fine lines, wrinkles, and age spots',
     duration: 90,
     price: 130.00,
-    images: ['https://example.com/anti-aging-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Features premium anti-aging ingredients',
     isActive: true,
   },
@@ -141,7 +141,7 @@ export const services = [
     description: 'Detoxifying body wrap that nourishes the skin and promotes relaxation',
     duration: 60,
     price: 85.00,
-    images: ['https://example.com/body-wrap-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Available in various therapeutic blends',
     isActive: true,
   },
@@ -150,7 +150,7 @@ export const services = [
     description: 'Invigorating body scrub that removes dead skin cells and leaves skin silky smooth',
     duration: 45,
     price: 75.00,
-    images: ['https://example.com/body-scrub-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Choose from sea salt, sugar, or coffee scrubs',
     isActive: true,
   },
@@ -159,7 +159,7 @@ export const services = [
     description: 'Relaxing spa treatment combining essential oils with gentle massage techniques',
     duration: 60,
     price: 100.00,
-    images: ['https://example.com/aromatherapy-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Customizable essential oil blends for your needs',
     isActive: true,
   },
@@ -168,7 +168,7 @@ export const services = [
     description: 'Complete nail care service including shaping, cuticle care, and polish application',
     duration: 90,
     price: 65.00,
-    images: ['https://example.com/manicure-pedicure-1.jpg'],
+    images: [], // Will be populated with uploaded images
     notes: 'Includes hand and foot massage',
     isActive: true,
   },
