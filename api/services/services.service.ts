@@ -61,4 +61,30 @@ export class ServicesService {
 
     return this.serviceModel.find(filter).populate('categoryId').sort({ price: 1 }).exec();
   }
+
+  async addImage(id: string, imagePath: string, thumbnailPath: string): Promise<ServiceDocument | null> {
+    return this.serviceModel.findByIdAndUpdate(
+      id,
+      { 
+        $push: { 
+          images: imagePath,
+          thumbnails: thumbnailPath
+        }
+      },
+      { new: true }
+    ).populate('categoryId').exec();
+  }
+
+  async removeImage(id: string, imageIndex: number): Promise<ServiceDocument | null> {
+    const service = await this.serviceModel.findById(id);
+    if (!service) {
+      return null;
+    }
+
+    // Remove the image and thumbnail at the specified index
+    service.images.splice(imageIndex, 1);
+    service.thumbnails.splice(imageIndex, 1);
+
+    return service.save();
+  }
 }

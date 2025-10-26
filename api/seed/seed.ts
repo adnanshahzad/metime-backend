@@ -1,5 +1,9 @@
 import { connect, disconnect } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
 import { User, UserSchema } from '../users/user.schema';
 import { Company, CompanySchema } from '../companies/company.schema';
 import { ServiceCategory, ServiceCategorySchema } from '../service-categories/service-category.schema';
@@ -8,6 +12,54 @@ import { CompanyService, CompanyServiceSchema } from '../company-services/compan
 import { Booking, BookingSchema } from '../bookings/booking.schema';
 import { companies, superAdmin, getCompanyUsers, serviceCategories, services, getSampleBookings } from './data';
 import { Role } from '../common/decorators/roles.decorator';
+
+// Function to create a sample image
+async function createSampleImage(): Promise<{ imagePath: string; thumbnailPath: string }> {
+  const uploadsDir = path.join(__dirname, '..', '..', 'uploads', 'services');
+  const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
+  
+  // Ensure directories exist
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  if (!fs.existsSync(thumbnailsDir)) {
+    fs.mkdirSync(thumbnailsDir, { recursive: true });
+  }
+
+  // Create a simple sample image (1x1 pixel PNG with a gradient-like pattern)
+  const fileName = `sample-service-${uuidv4()}.png`;
+  const imagePath = path.join(uploadsDir, fileName);
+  const thumbnailPath = path.join(thumbnailsDir, fileName);
+
+  // Create a simple 400x400 image with a gradient background
+  const imageBuffer = await sharp({
+    create: {
+      width: 400,
+      height: 400,
+      channels: 3,
+      background: { r: 135, g: 206, b: 235 } // Sky blue background
+    }
+  })
+  .png()
+  .toBuffer();
+
+  // Save original image
+  fs.writeFileSync(imagePath, imageBuffer);
+
+  // Create thumbnail (300x300)
+  await sharp(imageBuffer)
+    .resize(300, 300, {
+      fit: 'cover',
+      position: 'center'
+    })
+    .png({ quality: 80 })
+    .toFile(thumbnailPath);
+
+  return {
+    imagePath: `uploads/services/${fileName}`,
+    thumbnailPath: `uploads/services/thumbnails/${fileName}`
+  };
+}
 
 async function seed() {
   const command = process.argv[2];
@@ -115,6 +167,11 @@ async function seed() {
       console.log(`✓ Category: ${category.name} (${category.slug})`);
     }
 
+    // Create sample image for all services
+    console.log('Creating sample image...');
+    const { imagePath, thumbnailPath } = await createSampleImage();
+    console.log(`✓ Sample image created: ${imagePath}`);
+
     // Create services
     console.log('Creating services...');
     const createdServices = [];
@@ -155,13 +212,22 @@ async function seed() {
         continue;
       }
 
+      // Remove the old images array and add our sample image
+      const { images, ...serviceDataWithoutImages } = serviceData;
+      const serviceWithImage = {
+        ...serviceDataWithoutImages,
+        categoryId,
+        images: [imagePath],
+        thumbnails: [thumbnailPath]
+      };
+
       const service = await ServiceModel.findOneAndUpdate(
         { name: serviceData.name },
-        { ...serviceData, categoryId },
+        serviceWithImage,
         { upsert: true, new: true }
       );
       createdServices.push(service);
-      console.log(`✓ Service: ${service.name} (Category: ${createdCategories.find(c => c._id.toString() === categoryId.toString())?.name})`);
+      console.log(`✓ Service: ${service.name} (Category: ${createdCategories.find(c => c._id.toString() === categoryId.toString())?.name}) - Image: ${imagePath}`);
     }
 
     // Create company-service attachments
@@ -235,6 +301,7 @@ async function seed() {
     }
 
     console.log('\n🎉 Seeding completed successfully!');
+    console.log(`📸 All services now have the sample image: ${imagePath}`);
     console.log('\nTest accounts:');
     console.log('Super Admin: admin@example.com / 12345678');
     console.log('Company Admins: manager+metime@example.com / 12345678');
