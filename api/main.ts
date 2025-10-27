@@ -89,6 +89,7 @@ async function bootstrap() {
     .addTag('auth', 'Authentication endpoints')
     .addTag('users', 'User management endpoints')
     .addTag('companies', 'Company management endpoints')
+    .addTag('public', 'Public endpoints (no authentication required)')
     .addTag('root', 'Root endpoints')
     .build();
 
