@@ -21,7 +21,9 @@ async function bootstrap() {
     origin: [
       'http://localhost:4200', 
       'http://localhost:3000',
-      'https://metime-frontend-three.vercel.app'
+      'https://metime-frontend-three.vercel.app',
+      'https://metime-web.vercel.app',
+      'https://metime-webapp.vercel.app'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
