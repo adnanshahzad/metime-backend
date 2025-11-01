@@ -265,6 +265,11 @@ export class BookingsService {
       throw new NotFoundException('Booking not found');
     }
 
+    // Members cannot cancel any booking
+    if (userRole === Role.MEMBER) {
+      throw new ForbiddenException('Members do not have permission to cancel bookings');
+    }
+
     // Check if user can cancel this booking
     if (userRole !== Role.SUPER_ADMIN && booking.customerId.toString() !== userId) {
       throw new ForbiddenException('You can only cancel your own bookings');
