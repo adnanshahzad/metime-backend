@@ -286,6 +286,56 @@ export class BookingsService {
     return this.formatBookingResponse(updatedBooking);
   }
 
+  async acceptRequest(id: string, userId: string, userRole: Role): Promise<BookingResponseDto> {
+    const booking = await this.bookingModel.findById(id).exec();
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    // Only admins can accept requests
+    if (userRole !== Role.SUPER_ADMIN && userRole !== Role.COMPANY_ADMIN) {
+      throw new ForbiddenException('You do not have permission to accept requests');
+    }
+
+    // Check if booking is in pending status
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Can only accept pending requests');
+    }
+
+    // Accept the request by changing status to CONFIRMED
+    // This moves it from the requests page to the bookings section
+    // Company assignment will be done later in the Bookings section
+    booking.status = BookingStatus.CONFIRMED;
+    const updatedBooking = await booking.save();
+
+    return this.formatBookingResponse(updatedBooking);
+  }
+
+  async rejectRequest(id: string, userId: string, userRole: Role): Promise<BookingResponseDto> {
+    const booking = await this.bookingModel.findById(id).exec();
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    // Only admins can reject requests
+    if (userRole !== Role.SUPER_ADMIN && userRole !== Role.COMPANY_ADMIN) {
+      throw new ForbiddenException('You do not have permission to reject requests');
+    }
+
+    // Check if booking is in pending status
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Can only reject pending requests');
+    }
+
+    // Reject the request by cancelling it
+    booking.status = BookingStatus.CANCELLED;
+    const updatedBooking = await booking.save();
+
+    return this.formatBookingResponse(updatedBooking);
+  }
+
   async assignBooking(id: string, assignBookingDto: AssignBookingDto, assignedBy: string): Promise<BookingResponseDto> {
     const { companyId, userId, adminNotes } = assignBookingDto;
 
@@ -567,7 +617,7 @@ export class BookingsService {
 
   private validateStatusTransition(currentStatus: BookingStatus, newStatus: BookingStatus): void {
     const validTransitions: Record<BookingStatus, BookingStatus[]> = {
-      [BookingStatus.PENDING]: [BookingStatus.ASSIGNED_TO_COMPANY, BookingStatus.ASSIGNED_TO_MEMBER, BookingStatus.CANCELLED],
+      [BookingStatus.PENDING]: [BookingStatus.ASSIGNED_TO_COMPANY, BookingStatus.ASSIGNED_TO_MEMBER, BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
       [BookingStatus.ASSIGNED_TO_COMPANY]: [BookingStatus.ASSIGNED_TO_MEMBER, BookingStatus.CANCELLED],
       [BookingStatus.ASSIGNED_TO_MEMBER]: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
       [BookingStatus.CONFIRMED]: [BookingStatus.IN_PROGRESS, BookingStatus.CANCELLED],

@@ -81,6 +81,38 @@ export class BookingsController {
     return this.bookingsService.cancelBooking(id, req.user.userId, req.user.role);
   }
 
+  @Patch(':id/accept')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiTags('Requests')
+  @ApiOperation({ summary: 'Accept a booking request (moves it to bookings section)' })
+  @ApiResponse({ status: 200, description: 'Request accepted successfully', type: BookingResponseDto })
+  @ApiResponse({ status: 404, description: 'Booking not found' })
+  @ApiResponse({ status: 400, description: 'Cannot accept booking' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async acceptRequest(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Request() req,
+  ): Promise<BookingResponseDto> {
+    return this.bookingsService.acceptRequest(id, req.user.userId, req.user.role);
+  }
+
+  @Patch(':id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.COMPANY_ADMIN)
+  @ApiTags('Requests')
+  @ApiOperation({ summary: 'Reject a booking request' })
+  @ApiResponse({ status: 200, description: 'Request rejected successfully', type: BookingResponseDto })
+  @ApiResponse({ status: 404, description: 'Booking not found' })
+  @ApiResponse({ status: 400, description: 'Cannot reject booking' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async rejectRequest(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Request() req,
+  ): Promise<BookingResponseDto> {
+    return this.bookingsService.rejectRequest(id, req.user.userId, req.user.role);
+  }
+
   // Super Admin Endpoints
 
   @Get()
